@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="margin: 0">
+    <h1 align="center">YOUR BLOG</h1>
+    <h1 id="your-heading-id">total posts</h1>
+    <form onsubmit="handleFormSubmit(event)">
+      <label for="username">Image URL:</label>
+      <input type="url" name="username" id="username" /><br>
+      <label for="email">Tittle:</label>
+      <input type="text" name="email" id="email" /><br>
+      <label for="phone">Blog Description:</label>
+      <input type="text" name="phone" id="phone" /><br>
+      <button type="submit" id="change">Post Blog</button>
+    </form>
+    <!-- Add Unordered List Element Here -->
+    <ul>
+        <li id="list_of_items">
+            
+        </li>
+    </ul>
+        
+<!-- hey -->
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+  <script>
+    let count =0
+    function handleFormSubmit(){
+      count++
+        event.preventDefault()
+        const image_url = document.getElementById('username')
+        const Tittle = document.getElementById('email')
+        const blog_des = document.getElementById('phone')
+        const my_obj = {image:image_url.value,main_title:Tittle.value,blogdsc:blog_des.value}
+        axios.post('https://crudcrud.com/api/ac224457be9743bd846827d03e9af2c3/blogData',my_obj)
+            .then((res)=>{
+
+                showUserOnScreen(res.data)
+                const api_response = res.data
+            // console.log(api_response._id)
+                my_obj._id = api_response._id;               
+                // console.log(res.data)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+            const headingElement = document.getElementById('your-heading-id');
+            headingElement.innerHTML = `Total posts ${count}`;
+            headingElement.style.textAlign='center'
+    }
+    window.addEventListener("DOMContentLoaded", ()=>{
+    axios.get('https://crudcrud.com/api/ac224457be9743bd846827d03e9af2c3/blogData')
+        .then((response)=>{
+          
+            for(var i=0; i<response.data.length; i++){
+                showUserOnScreen(response.data[i])
+            }
+        })
+        .catch((err)=>{
+            console.log('error',err)
+        })
+    })
+    function showUserOnScreen(my_obj){
+        const li_element = document.createElement('li')
+        const id_element = document.getElementById('list_of_items')
+        li_element.textContent = my_obj.main_title  
+        li_element.style.fontSize = "xx-large"
+        const li_element2 = document.createElement('img')
+        li_element2.setAttribute('src',my_obj.image)
+        id_element.appendChild(li_element)
+        id_element.appendChild(li_element2)
+        const li_element3=document.createElement('li')
+        li_element3.textContent = my_obj.blogdsc
+        id_element.appendChild(li_element3)
+        const del_button = document.createElement('input')
+        del_button.value='Delete'
+        del_button.type='button'
+        del_button.onclick=()=>{
+            count--
+            delete_button()
+
+
+        }
+        function delete_button(){
+          axios.delete(`https://crudcrud.com/api/ac224457be9743bd846827d03e9af2c3/blogData/${my_obj._id}`)
+                .then((res)=>{
+                    console.log(res)
+                    id_element.removeChild(li_element)
+                    id_element.removeChild(li_element2)
+                    id_element.removeChild(li_element3)
+                    id_element.removeChild(del_button)
+                    id_element.removeChild(edit_button)
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
+
+        }
+        const edit_button = document.createElement('input')
+        edit_button.value="EDIT"
+        edit_button.type='button'
+        edit_button.onclick=()=>{
+          count--
+          axios.delete(`https://crudcrud.com/api/ac224457be9743bd846827d03e9af2c3/blogData/${my_obj._id}`)
+            .then((res)=>{
+              id_element.removeChild(li_element)
+              id_element.removeChild(li_element2)
+              id_element.removeChild(li_element3)  
+              const image_url = document.getElementById('username')
+              const Tittle = document.getElementById('email')
+              const blog_des = document.getElementById('phone')
+              image_url.value = my_obj.image 
+              Tittle.value=my_obj.main_title
+              blog_des.value=my_obj.blogdsc                   
+              // const my_obj = {image:image_url.value,main_title:Tittle.value,blogdsc:blog_des.value}
+              id_element.removeChild(del_button)
+              id_element.removeChild(edit_button)
+              const submitButton = document.getElementById('change');
+
+// Change the value of the submit button to "Edit Blog"
+              submitButton.value = "Edit Blog";
+            })
+        }
+        id_element.appendChild(del_button)
+        id_element.appendChild(edit_button)
+    }
+
+  </script>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1 align="'center" id="heading">YOUR BLOG</h1>
+    <form onsubmit="handleFormSubmit(event)">
+        <label for='imageurl'>URL</label>
+        <input id='imageurl' name="imageurl" type="url"/><br>
+        <label for="Tittle">Tittle</label>
+        <input id="Tittle" name="Tittle" type='text'><br>
+        <label for="dsc">Description</label>
+        <input id="dsc" name="dsc" type="'text"/><br>
+    
+        <button id ='button_change' name='button' type="submit">Submit</button>
+    </form>
+    <ul>
+        <li id='list_of_items'>
+        </li>
+    </ul> 
+</body>
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
+<script>
+    let count=0
+    const h2 = document.getElementById('heading');
+    h2.innerHTML = `YOUR BLOG<br>Total Posts: ${count}`;
+    h2.style.textAlign = 'center';
+
+    async function fetchdata() {
+        try {
+            const response = await axios.get('https://crudcrud.com/api/80bd7991025f4d46924ae7a2d2d8c565/blogdata');
+            
+            for (var i = 0; i < response.data.length; i++) {
+                showUserOnScreen(response.data[i]);
+                // console.log(response.data[i])
+            }
+        } catch (err) {
+            console.log('error', err);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        fetchdata();
+    });
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+        try {
+            const url = document.getElementById('imageurl');
+            const Tittle = document.getElementById('Tittle');
+            const dsc = document.getElementById('dsc');
+            const obj = { url: url.value, Tittle: Tittle.value, dsc: dsc.value };
+            const Post = await axios.post('https://crudcrud.com/api/80bd7991025f4d46924ae7a2d2d8c565/blogdata', obj);
+            obj._id=Post.data._id
+            console.log(obj)
+            const button = document.getElementById('button_change');
+            button.innerText = 'SUBMIT';
+            showUserOnScreen(obj);
+            url.value = '';
+            Tittle.value = '';
+            dsc.value = ''
+        } catch (error) {
+            console.error('Error handling form submission:', error);
+        }
+    }
+
+
+    function showUserOnScreen(obj){
+        const url = document.getElementById('imageurl');
+        const Tittle = document.getElementById('Tittle');
+        const dsc = document.getElementById('dsc');
+        count++
+        h2.innerHTML = `<span>YOUR BLOG</span><br>Total Posts: ${count}`;
+        h2.style.textAlign = 'center';              
+        const id_elem = document.getElementById('list_of_items')
+        const li_elem = document.createElement('li')
+        const li_elem1 = document.createElement('li')
+        const li_elem2 = document.createElement('img')
+        li_elem2.setAttribute('src',obj.url)
+        li_elem1.textContent=obj.dsc
+        li_elem.textContent=obj.Tittle
+        li_elem.style.fontSize = "xx-large"
+        id_elem.appendChild(li_elem)
+        id_elem.appendChild(li_elem2)
+        id_elem.appendChild(li_elem1)
+        // console.log(Post.data._id)
+        const delete_button = document.createElement('input')
+        delete_button.value='Delete'
+        delete_button.type='button'
+        delete_button.onclick=()=>{
+            count--
+            delete_button_func(obj)
+        }
+        const edit_button = document.createElement('input')
+        edit_button.value="Edit"
+        edit_button.type='button'
+        edit_button.onclick=()=>{
+            
+            count--
+            edit_button_func(obj)
+
+
+        }
+    
+        async function edit_button_func(obj) {
+            try {
+                h2.innerHTML = `<span>YOUR BLOG</span><br>Total Posts: ${count}`;
+                h2.style.textAlign = 'center';
+                // const Post = await axios.get('https://crudcrud.com/api/ac224457be9743bd846827d03e9af2c3/blogdata', obj);
+                console.log(obj._id)
+                const editing_axios = await axios.delete(`https://crudcrud.com/api/80bd7991025f4d46924ae7a2d2d8c565/blogdata/${obj._id}`);
+                id_elem.removeChild(li_elem);
+                id_elem.removeChild(li_elem2);
+                id_elem.removeChild(li_elem1);
+                id_elem.removeChild(delete_button);
+                id_elem.removeChild(edit_button);
+                url.value = obj.url;
+                Tittle.value = obj.Tittle;
+                dsc.value = obj.dsc;
+                const button = document.getElementById('button_change');
+                button.innerText = 'EDIT POST';
+            } catch (error) {
+                console.error('Error handling form submission:', error);         
+            }
+        }
+
+        async function delete_button_func(obj){
+            try{
+                console.log(obj)
+                h2.innerHTML = `<span>YOUR BLOG</span><br>Total Posts: ${count}`;
+                h2.style.textAlign = 'center';
+                // const Post = await axios.get('https://crudcrud.com/api/ac224457be9743bd846827d03e9af2c3/blogdata', obj);
+                const deleting_axios = await axios.delete(`https://crudcrud.com/api/80bd7991025f4d46924ae7a2d2d8c565/blogdata/${obj._id}`)
+                id_elem.removeChild(li_elem)
+                id_elem.removeChild(li_elem2)
+                id_elem.removeChild(li_elem1)
+                id_elem.removeChild(delete_button)
+                id_elem.removeChild(edit_button)
+            } catch (error) {
+            console.error('Error handling form submission:', error);
+            }
+
+
+        
+        }
+        id_elem.appendChild(delete_button)
+        id_elem.appendChild(edit_button)
+    }
+
+
+
+</script>
+</html>
